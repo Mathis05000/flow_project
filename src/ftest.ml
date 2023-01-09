@@ -1,4 +1,6 @@
 open Gfile
+open Tools
+open Algo
 
 let () =
 
@@ -22,9 +24,32 @@ let () =
 
   (* Open file *)
   let graph = from_file infile in
+  let int_graph = gmap graph int_of_string in
+  let path = find_path int_graph _source _sink in
+
+  let rec print t = match t with
+    |[] -> ()
+    |x::rest -> Printf.printf "%d " x ; print rest
+  in
+
+  (*let min = min_arc_path int_graph path in
+  let gr2 = iter_FF int_graph path min in
+  let gr3 = gmap gr2 string_of_int in 
+
+  let min = min_arc_path int_graph path in
+  let gr2 = iter_FF int_graph path min in
+  let gr3 = gmap gr2 string_of_int in *)
+  let flow = ff int_graph _source _sink in
+
+  Printf.printf "%d" flow;
+
+
+
+
+  
 
   (* Rewrite the graph that has been read. *)
-  let () = write_file outfile graph in
+  let () = export outfile graph in 
 
   ()
 
