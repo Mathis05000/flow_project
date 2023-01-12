@@ -129,4 +129,3 @@ let from_file path =
   
   close_in infile ;
   final_graph
-  

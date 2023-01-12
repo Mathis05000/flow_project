@@ -1,9 +1,13 @@
 
 (* Type of a directed graph in which arcs have labels of type 'a. *)
-type 'a graph
+
 
 (* Each node has a unique identifier (a number). *)
 type id = int
+
+type 'a out_arcs = (id * 'a) list
+
+type 'a graph = (id * 'a out_arcs) list
 
 exception Graph_error of string
 
@@ -31,7 +35,7 @@ val node_exists: 'a graph -> id -> bool
 
 (* Type of lists of outgoing arcs of a node. 
  * An arc is represented by a pair of the destination identifier and the arc label. *)
-type 'a out_arcs = (id * 'a) list
+
 
 (* Find the out_arcs of a node.
  * @raise Graph_error if the id is unknown in the graph. *)

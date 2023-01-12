@@ -51,7 +51,7 @@ let iter_FF gr path add =
 
 let ff gr id1 id2 = 
   let rec loop path gr_acu flow = match path with
-    |[] -> flow
+    |[] -> (gr_acu, flow)
     |x -> let tmp_flow = (min_arc_path gr_acu x) in
       let tmp_gr = iter_FF gr_acu x tmp_flow in
       (*Printf.printf "loop : %d\n%!" tmp_flow;*)
