@@ -3,9 +3,9 @@
 
 # Final Project of host matching problem.
 
-# Template of input file 
+### Template of input file 
 
-’’’bash
+```bash
 %% hosts
 %% h name , capacity [list of constraints (what they have at home) ]
 
@@ -21,17 +21,17 @@ g Mathis , smoke
 g Marie , stairs cats
 g Tom , dogs cats smoke
 ...
-’’’
+```
 
-# Template of output file
+### Template of output file
 
-’’’bash
+```bash
 Ishaac dors chez Wissal
 Mathis dors chez Julie
 Marie dors chez Thomas
 Tom dors chez Wissal
 ...
-’’’
+```
 To use, you should install the *OCaml* extension in VSCode. Other extensions might work as well but make sure there is only one installed.
 Then open VSCode in the root directory of this repository (command line: `code path/to/ocaml-maxflow-project`).
 
@@ -49,15 +49,15 @@ A makefile provides some useful commands:
  - `make edit` to open the project in VSCode
  - `make clean` to remove build artifacts
  
-# To execute the program
+### To execute the program
 
-’’’bash
+```bash
 make build
-’’’
+```
 
-’’’bash
+```bash
 ./ftest.native in/template out/result 
-’’’
+```
 
 where file in/template is your input file and file out/result is your output file
 
