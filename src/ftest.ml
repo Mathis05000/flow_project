@@ -12,24 +12,24 @@ let () =
     end ;
 
 
-  (* Arguments are : infile(1) source-id(2) sink-id(3) outfile(4) *)
+  (* Arguments are : infile(1) outfile(2) *)
 
   let infile = Sys.argv.(1)
   and outfile = Sys.argv.(2)
 
-  (* These command-line arguments are not used for the moment. *)
-
   in
 
-  (* Open file *)
+  (* Open file and generate graph and dictionaries associated with the input file *)
   let (graph, src, fin, list_guest, list_host) = from_file infile in
 
+  (* Execute Ford Fulkerson algorithm for generate the final graph *)
   let (final_graph, flow) = ff graph src fin in  
 
-  (* Rewrite the graph that has been read. *)
+  (* generate output file with the result of the distribution of guests with hosts *)
   let () = out_stream outfile final_graph list_guest list_host in 
-  let () = export "graph" (gmap final_graph string_of_int) fin in
 
+  (* generate the final graph associated with the result of the problem with Graphviz library *)
+  let () = export "graph" (gmap final_graph string_of_int) fin in
   Sys.command "dot -Tsvg graph > out/final_graph.svg";
 
   ()

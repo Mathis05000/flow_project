@@ -1,6 +1,7 @@
 open Graph
 open Tools
 
+(* find path from source node to end node*)
 let find_path g id1 id2 = 
 
   let rec loop acu r = match r with
@@ -19,6 +20,7 @@ let find_path g id1 id2 =
     |x -> x
 ;;
 
+(* find minimum arc in the given path *)
 let min_arc_path g path = 
   let rec loop path acu = match path with
   |[a] -> acu
@@ -35,7 +37,7 @@ let min_arc_path g path =
   ;;
 
 
-
+(* execute one iteration of Fold Fulkerson algorithm*)
 let iter_FF gr path add = 
   let rec loop path gr_acu = match path with
   |[x] -> gr_acu
@@ -48,7 +50,7 @@ let iter_FF gr path add =
   loop path gr
 ;;
 
-
+(* execute Fold Fulkerson algorithm and return flow max with the graph associated *)
 let ff gr id1 id2 = 
   let rec loop path gr_acu flow = match path with
     |[] -> (gr_acu, flow)

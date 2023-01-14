@@ -60,7 +60,7 @@ let export path graph fin =
   (* Write in this file. *)
   fprintf ff "digraph finite_state_machine {\n" ;
   fprintf ff "fontname=\"Helvetica,Arial,sans-serif\"\nnode [fontname=\"Helvetica,Arial,sans-serif\"]\nedge [fontname=\"Helvetica,Arial,sans-serif\"]\nrankdir=LR;\nnode [shape = doublecircle]; 0 %d ;\nnode [shape = circle];\n" fin;  
-  (* Write all nodes (with fake coordinates) *)
+  (* Write all nodes and arcs in Graphviz format *)
   e_iter graph (fun id1 id2 label -> fprintf ff "%.1d -> %.1d [label = \"%s\"];\n" id1 id2 label);
   fprintf ff "\n" ;
 
@@ -69,6 +69,14 @@ let export path graph fin =
   close_out ff ;
   ()
   
+(* Générate result file for users *)
+
+(* 
+X dors chez Y 
+Z dors chez Y
+...            
+*)
+
 let out_stream path graph list_guest list_host = 
   let ff = open_out path in
   let rec loop list_guest = match list_guest with
@@ -88,13 +96,14 @@ let out_stream path graph list_guest list_host =
 
 
 
-(* Reads a line with a node. *)
+(* Reads a line with a host and update dictionary between node's id and host. *)
 let read_host line id list_host =
   try Scanf.sscanf line "h %s , %d %[^\n]" (fun name nb_place list_c -> Printf.printf "%s\n" list_c; List.append list_host [(id, name, nb_place, (String.split_on_char ' ' list_c))])
   with e ->
     Printf.printf "Cannot read node in line - %s:\n%s\n%!" (Printexc.to_string e) line ;
     failwith "from_file"
 
+(* Reads a line with a guest and update dictionary between node's id and guest. *)
 let read_guest line id list_guest = 
   try Scanf.sscanf line "g %s , %[^\n]" (fun name list_c -> List.append list_guest [(id, name, (String.split_on_char ' ' list_c))])
   with e ->
@@ -113,7 +122,7 @@ let read_comment graph line list_guest list_host =
     failwith "from_file"
 
 
-
+(* Generate graph and dictionaries associated with input file *)
 let from_file path =
 
   let infile = open_in path in
@@ -130,7 +139,7 @@ let from_file path =
         (* Ignore empty lines *)
         if line = "" then (graph, list_guest, list_host)
 
-        (* The first character of a line determines its content : n or e. *)
+        (* The first character of a line determines its content : h or g *)
         else match line.[0] with
           | 'h' -> ((new_node graph id), list_guest, (read_host line id list_host))
           | 'g' -> ((new_node graph id), (read_guest line id list_guest), list_host)
@@ -149,26 +158,16 @@ let from_file path =
   
   close_in infile ;
 
-  let rec print_guest list = match list with
-    |(id, name, list)::rest -> Printf.printf "%d " id; Printf.printf "%s \n" name; print_guest rest
-    |[] -> Printf.printf "%s" "fin"
-  in
-
-  let rec print_host list = match list with
-    |(id, name, nb_place, _)::rest -> Printf.printf "%d " id; Printf.printf "%d " nb_place; Printf.printf "%s \n" name; print_host rest
-    |[] -> Printf.printf "%s" "fin"
-  in
-
-  print_guest list_guest;
-  print_host list_host;
-
+  (* add source node*)
   let tmp_graph = new_node tmp_graph 0 in
+
+  (* add end node*)
   let tmp_graph = new_node tmp_graph id_fin in
 
-  
-
+  (* Generate arcs *)
   let init_arc graph list_guest list_host = 
 
+    (* Generate arcs from source to guest with capacity of 1 *)
     let rec loop graph list_guest = match list_guest with
       |[] -> graph
       |(id, _, _)::rest -> loop (new_arc graph 0 id 1) rest
@@ -176,6 +175,7 @@ let from_file path =
     
     let tmp_graph = loop graph list_guest in
 
+    (* Generate arcs from hosts to end node with capacity of hosts capacities *)
     let rec loop graph list_host = match list_host with
       |[] -> graph
       |(id, _, nb_place, _)::rest -> loop (new_arc graph id id_fin nb_place) rest
@@ -183,6 +183,7 @@ let from_file path =
 
     let tmp_graph = loop tmp_graph list_host in
 
+    (* Generate arcs from guests to hosts if guests can stay with host *)
     let rec loop graph list_host = match list_host with
       |[] -> graph
       |(id_host, _, _, list_c_h)::rest_host -> 
@@ -205,10 +206,6 @@ let from_file path =
   in
   
   let tmp_graph = init_arc tmp_graph list_guest list_host in
-
-  let num_nodes = List.length tmp_graph in
-
-  Printf.printf "nb de nodes : %d\n" num_nodes;
 
   (tmp_graph, 0, id_fin, list_guest, list_host)
 
